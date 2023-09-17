@@ -26,9 +26,4 @@ class TodoModel extends TodoEntity with EquatableMixin {
       isCompleted: map['isCompleted'] ?? false,
     );
   }
-
-  @override
-  String toString() {
-    return 'TodoModel(id: $id, title: $title, subtitle: $subtitle, isCompleted: $isCompleted)';
-  }
 }

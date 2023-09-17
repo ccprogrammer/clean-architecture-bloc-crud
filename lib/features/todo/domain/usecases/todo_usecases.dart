@@ -8,7 +8,7 @@ class TodoUseCases {
   final todoRepo = TodoRepositoryImpl();
 
   Future<Either<Failure, List<TodoEntity>>> getTodo() async {
-    return todoRepo.getTodoFromDataSource();
+    return await todoRepo.getTodoFromDataSource();
   }
 
   Future<Either<Failure, List<TodoEntity>>> addTodo(
