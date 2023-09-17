@@ -8,7 +8,7 @@ import '../../domain/repository/todo_repo.dart';
 import '../datasources/todo_remote_datasource.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
-  final TodoRemoteDataSource todoRemoteDatasource = TodoRemoteDataSourceImpl();
+  final TodoRemoteDataSource todoRemoteDatasource = TodoRemoteDataSource();
 
   @override
   Future<Either<Failure, List<TodoEntity>>> getTodoFromDataSource() async {
