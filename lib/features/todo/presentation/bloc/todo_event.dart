@@ -3,6 +3,10 @@ part of 'todo_bloc.dart';
 @immutable
 abstract class TodoEvent {}
 
+class TodoEventGet extends TodoEvent {
+  TodoEventGet();
+}
+
 class TodoEventAdd extends TodoEvent {
   final TodoEntity todo;
   TodoEventAdd({required this.todo});

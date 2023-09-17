@@ -13,6 +13,8 @@ part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
   TodoBloc() : super(TodoState()) {
+    on<TodoEventGet>(_todoEventGet);
+
     on<TodoEventAdd>(_todoEventAdd);
 
     on<TodoEventUpdate>(_todoEventUpdate);
@@ -25,6 +27,30 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   final todoUseCases = TodoUseCases();
+
+  void _todoEventGet(TodoEventGet event, Emitter emit) async {
+    emit(state.copyWith(status: DataStates.loading));
+
+    final _todos = await todoUseCases.getTodo();
+
+    _todos.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            status: DataStates.failure,
+            message: _mapFailureToMessage(failure),
+          ),
+        );
+      },
+      (todos) => emit(
+        state.copyWith(
+          todos: [...state.todos, ...todos],
+          message: 'Getting new todos',
+          status: DataStates.success,
+        ),
+      ),
+    );
+  }
 
   void _todoEventAdd(TodoEventAdd event, Emitter emit) async {
     emit(

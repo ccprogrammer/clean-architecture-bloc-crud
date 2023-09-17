@@ -8,14 +8,14 @@ import '../../presentation/bloc/todo_bloc.dart';
 import '../../domain/entities/todo_entity.dart';
 import '../../domain/entities/todos_view_filter.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class TodoView extends StatefulWidget {
+  const TodoView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<TodoView> createState() => _TodoViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _TodoViewState extends State<TodoView> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   final TextEditingController titleController = TextEditingController();
@@ -97,6 +97,12 @@ class _HomeViewState extends State<HomeView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Todo BLoC'),
+          actions: [
+            IconButton(
+              onPressed: () => context.read<TodoBloc>().add(TodoEventGet()),
+              icon: Icon(Icons.cloud_download_rounded),
+            ),
+          ],
         ),
         floatingActionButton: _buildFAB(),
         body: Column(
@@ -165,7 +171,7 @@ class _HomeViewState extends State<HomeView> {
                       context.read<TodoBloc>().add(
                             TodoEventAdd(
                               todo: TodoEntity(
-                                id: '${(Random().nextDouble() * 100).floor()}',
+                                id: (Random().nextDouble() * 100).floor(),
                                 title: titleController.text,
                                 subtitle: subtitleController.text,
                                 isCompleted: false,
@@ -357,15 +363,36 @@ class _HomeViewState extends State<HomeView> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: ListTile(
-                        title: Text(todo.title),
-                        subtitle: Text(todo.subtitle),
+                        title: Text(
+                          todo.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color:
+                                todo.isCompleted ? Colors.blue : Colors.black,
+                            decoration: todo.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        subtitle: Text(
+                          todo.subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color:
+                                todo.isCompleted ? Colors.blue : Colors.black,
+                            decoration: todo.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
                         dense: true,
                         leading: SizedBox(
                           width: 26,
                           child: Checkbox(
                             value: todo.isCompleted,
                             onChanged: (value) {
-                              print('value => $value');
                               context.read<TodoBloc>().add(
                                     TodoEventIsCompleted(
                                       index: index,
@@ -424,6 +451,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   // * Event Handler
+
   void onFilterTap(TodosViewFilter filter) {
     context.read<TodoBloc>().add(TodoEventFilter(filter: filter));
     Navigator.pop(context);

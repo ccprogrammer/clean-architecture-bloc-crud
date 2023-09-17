@@ -1,9 +1,16 @@
-import 'package:crud_bloc/features/home/domain/entities/todo_entity.dart';
+import 'package:crud_bloc/features/todo/data/repository/todo_repo_impl.dart';
+import 'package:crud_bloc/features/todo/domain/entities/todo_entity.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/shared/failures.dart';
 
 class TodoUseCases {
+  final todoRepo = TodoRepositoryImpl();
+
+  Future<Either<Failure, List<TodoEntity>>> getTodo() async {
+    return todoRepo.getTodoFromDataSource();
+  }
+
   Future<Either<Failure, List<TodoEntity>>> addTodo(
     List<TodoEntity> todos,
     TodoEntity todo,
