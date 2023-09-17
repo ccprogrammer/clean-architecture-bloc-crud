@@ -8,6 +8,17 @@ class TodoEventAdd extends TodoEvent {
   TodoEventAdd({required this.todo});
 }
 
+class TodoEventUpdate extends TodoEvent {
+  final int index;
+  final String title;
+  final String subtitle;
+  TodoEventUpdate({
+    required this.index,
+    required this.title,
+    required this.subtitle,
+  });
+}
+
 class TodoEventDelete extends TodoEvent {
   final TodoEntity todo;
   TodoEventDelete({required this.todo});

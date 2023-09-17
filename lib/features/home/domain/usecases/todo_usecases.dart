@@ -1,16 +1,36 @@
 import 'package:crud_bloc/features/home/domain/entities/todo_entity.dart';
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/shared/failures.dart';
 
 class TodoUseCases {
-  Future<List<TodoEntity>> addTodo(
+  Future<Either<Failure, List<TodoEntity>>> addTodo(
     List<TodoEntity> todos,
     TodoEntity todo,
   ) async {
     final _todos = [...todos, todo];
     await Future.delayed(Duration(milliseconds: 500));
-    return _todos;
+    return right(_todos);
+    // return left(FailureGeneral());
   }
 
-  Future<List<TodoEntity>> deleteTodo(
+  Future<Either<Failure, List<TodoEntity>>> updateTodo(
+    List<TodoEntity> todos,
+    int index,
+    String title,
+    String subtitle,
+  ) async {
+    final _todos = [...todos];
+    final newTodo =
+        _todos.elementAt(index).copyWith(title: title, subtitle: subtitle);
+
+    _todos[index] = newTodo;
+    await Future.delayed(Duration(milliseconds: 500));
+    return right(_todos);
+    // return left(FailureGeneral());
+  }
+
+  Future<Either<Failure, List<TodoEntity>>> deleteTodo(
     List<TodoEntity> todos,
     TodoEntity todo,
   ) async {
@@ -18,10 +38,10 @@ class TodoUseCases {
 
     _todos.removeWhere((TodoEntity todo) => todo.id == todo.id);
 
-    return _todos;
+    return right(_todos);
   }
 
-  Future<List<TodoEntity>> completeTodo(
+  Future<Either<Failure, List<TodoEntity>>> completeTodo(
     List<TodoEntity> todos,
     int index,
     bool isCompleted,
@@ -32,6 +52,6 @@ class TodoUseCases {
 
     _todos[index] = newTodo;
 
-    return _todos;
+    return right(_todos);
   }
 }

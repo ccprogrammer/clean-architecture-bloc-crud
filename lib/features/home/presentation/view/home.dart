@@ -21,10 +21,16 @@ class _HomeViewState extends State<HomeView> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController subtitleController = TextEditingController();
 
+  final TextEditingController titleDetailController = TextEditingController();
+  final TextEditingController subtitleDetailController =
+      TextEditingController();
+
   @override
   void dispose() {
     titleController.dispose();
     subtitleController.dispose();
+    titleDetailController.dispose();
+    subtitleDetailController.dispose();
     super.dispose();
   }
 
@@ -40,7 +46,7 @@ class _HomeViewState extends State<HomeView> {
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  content: Text('Todo Added'),
+                  content: Text(state.message),
                   backgroundColor: Colors.blue,
                 ),
               );
@@ -54,8 +60,35 @@ class _HomeViewState extends State<HomeView> {
               ..hideCurrentSnackBar()
               ..showSnackBar(
                 SnackBar(
-                  content: Text('Todo Deleted'),
+                  content: Text(state.message),
                   backgroundColor: Colors.red,
+                ),
+              );
+          },
+        ),
+        BlocListener<TodoBloc, TodoState>(
+          listener: (context, state) {
+            if (state.status == DataStates.failure) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+            }
+          },
+        ),
+        BlocListener<TodoBloc, TodoState>(
+          listenWhen: (previous, current) => previous.filter != current.filter,
+          listener: (context, state) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.blue,
                 ),
               );
           },
@@ -64,13 +97,13 @@ class _HomeViewState extends State<HomeView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Todo BLoC'),
-          centerTitle: true,
         ),
         floatingActionButton: _buildFAB(),
         body: Column(
           children: [
             _buildFilter(),
             _buildTodos(),
+            _buildLoadingEventChange(),
           ],
         ),
       ),
@@ -287,12 +320,22 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                 );
+              case DataStates.failure:
+                return Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Center(
+                    child: Text(
+                      state.message,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                );
               default:
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Center(
                     child: Text(
-                      'Something went wrong!',
+                      state.message,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -300,16 +343,17 @@ class _HomeViewState extends State<HomeView> {
             }
           }
 
-          return Expanded(
+          return Flexible(
             child: ListView.separated(
                 padding: const EdgeInsets.only(bottom: 24),
+                shrinkWrap: true,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 16),
                 itemCount: state.filteredTodos.length,
                 itemBuilder: (context, index) {
                   TodoEntity todo = state.filteredTodos.elementAt(index);
                   return GestureDetector(
-                    onTap: () => onTapTodo(todo: todo),
+                    onTap: () => onTapTodo(index: index, todo: todo),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: ListTile(
@@ -352,6 +396,33 @@ class _HomeViewState extends State<HomeView> {
         },
       );
 
+  Widget _buildLoadingEventChange() {
+    return BlocBuilder<TodoBloc, TodoState>(
+      builder: (context, state) {
+        if (state.status == DataStates.failure)
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Center(
+              child: Text(
+                state.message,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          );
+
+        if (state.status == DataStates.loading && state.todos.isNotEmpty)
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: const Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+          );
+
+        return SizedBox();
+      },
+    );
+  }
+
   // * Event Handler
   void onFilterTap(TodosViewFilter filter) {
     context.read<TodoBloc>().add(TodoEventFilter(filter: filter));
@@ -370,7 +441,10 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  void onTapTodo({required TodoEntity todo}) async {
+  void onTapTodo({required int index, required TodoEntity todo}) async {
+    titleDetailController.text = todo.title;
+    subtitleDetailController.text = todo.subtitle;
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -380,11 +454,15 @@ class _HomeViewState extends State<HomeView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              todo.title,
+            TextFormField(
+              controller: titleDetailController,
               style: TextStyle(
                 fontSize: 34,
                 fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                isCollapsed: true,
+                border: InputBorder.none,
               ),
             ),
             SizedBox(height: 6),
@@ -393,10 +471,52 @@ class _HomeViewState extends State<HomeView> {
               color: Colors.grey,
             ),
             SizedBox(height: 16),
-            Text(
-              todo.subtitle,
-              style: TextStyle(
-                fontSize: 16,
+            Expanded(
+              child: TextFormField(
+                controller: subtitleDetailController,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                decoration: InputDecoration(
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                ),
+                maxLines: null,
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 16, bottom: 24),
+              width: double.infinity,
+              child: Material(
+                color: Colors.blue,
+                elevation: 4,
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    context.read<TodoBloc>().add(
+                          TodoEventUpdate(
+                            index: index,
+                            title: titleDetailController.text,
+                            subtitle: subtitleDetailController.text,
+                          ),
+                        );
+
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      'Update',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
