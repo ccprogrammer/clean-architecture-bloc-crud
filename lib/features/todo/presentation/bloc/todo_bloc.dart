@@ -6,7 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../enums/data_states.dart';
 import '../../domain/entities/todo_entity.dart';
 import '../../domain/entities/todos_view_filter.dart';
-import '../../domain/usecases/todo_usecases.dart';
+import '../../domain/usecases/todo_add_usecase.dart';
+import '../../domain/usecases/todo_complete_usecase.dart';
+import '../../domain/usecases/todo_delete_usecase.dart';
+import '../../domain/usecases/todo_get_usecase.dart';
+import '../../domain/usecases/todo_update_usecase.dart';
 
 part 'todo_event.dart';
 part 'todo_state.dart';
@@ -26,12 +30,16 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     on<TodoEventFilter>(_todoEventFilter);
   }
 
-  final todoUseCases = TodoUseCases();
+  final getUseCase = TodoGetUseCase();
+  final addUseCase = TodoAddUseCase();
+  final updateUseCase = TodoUpdateUseCase();
+  final deleteUseCase = TodoDeleteUseCase();
+  final completeUseCase = TodoCompleteUseCase();
 
   void _todoEventGet(TodoEventGet event, Emitter emit) async {
     emit(state.copyWith(status: DataStates.loading));
 
-    final _todos = await todoUseCases.getTodo();
+    final _todos = await getUseCase.call(GetTodoParams(limit: event.limit));
 
     _todos.fold(
       (failure) {
@@ -57,7 +65,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
       state.copyWith(status: DataStates.loading),
     );
 
-    final _todos = await todoUseCases.addTodo(state.todos, event.todo);
+    final _todos = await addUseCase.addTodo(state.todos, event.todo);
 
     _todos.fold(
       (failure) {
@@ -79,7 +87,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventUpdate(TodoEventUpdate event, Emitter emit) async {
-    final _todos = await todoUseCases.updateTodo(
+    final _todos = await updateUseCase.updateTodo(
       state.todos,
       event.index,
       event.title,
@@ -106,7 +114,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventDelete(TodoEventDelete event, Emitter emit) async {
-    final _todos = await todoUseCases.deleteTodo(state.todos, event.todo);
+    final _todos = await deleteUseCase.deleteTodo(state.todos, event.todo);
 
     _todos.fold(
       (failure) {
@@ -128,7 +136,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventIsCompleted(TodoEventIsCompleted event, Emitter emit) async {
-    final _todos = await todoUseCases.completeTodo(
+    final _todos = await completeUseCase.completeTodo(
         state.todos, event.index, event.isCompleted);
 
     _todos.fold(

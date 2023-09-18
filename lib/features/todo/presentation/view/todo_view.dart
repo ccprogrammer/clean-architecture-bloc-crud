@@ -99,7 +99,8 @@ class _TodoViewState extends State<TodoView> {
           title: const Text('Todo BLoC'),
           actions: [
             IconButton(
-              onPressed: () => context.read<TodoBloc>().add(TodoEventGet()),
+              onPressed: () =>
+                  context.read<TodoBloc>().add(TodoEventGet(limit: 4)),
               icon: Icon(Icons.cloud_download_rounded),
             ),
           ],

@@ -4,7 +4,8 @@ part of 'todo_bloc.dart';
 abstract class TodoEvent {}
 
 class TodoEventGet extends TodoEvent {
-  TodoEventGet();
+  final int limit;
+  TodoEventGet({required this.limit});
 }
 
 class TodoEventAdd extends TodoEvent {
