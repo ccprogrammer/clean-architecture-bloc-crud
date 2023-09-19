@@ -1,7 +1,7 @@
 import 'package:crud_bloc/features/todo/data/models/todo_model.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:crud_bloc/core/shared/failures.dart';
+import 'package:crud_bloc/core/errors/failures.dart';
 
 import '../../domain/repository/todo_repo.dart';
 import '../datasources/todo_remote_datasource.dart';
