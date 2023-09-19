@@ -3,12 +3,9 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../../data/repository/todo_repo_impl.dart';
 import '../entities/todo_entity.dart';
 
 class TodoAddUseCase extends UseCase<List<TodoEntity>, TodoParamsAdd> {
-  final todoRepo = TodoRepositoryImpl();
-
   @override
   Future<Either<Failure, List<TodoEntity>>> call(TodoParamsAdd params) async {
     final _todos = [...params.todos, params.todo];

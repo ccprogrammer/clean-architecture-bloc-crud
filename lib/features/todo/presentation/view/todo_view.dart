@@ -427,7 +427,7 @@ class _TodoViewState extends State<TodoView> {
   Widget _buildLoadingEventChange() {
     return BlocBuilder<TodoBloc, TodoState>(
       builder: (context, state) {
-        if (state.status == DataStates.failure)
+        if (state.status == DataStates.failure && state.todos.isNotEmpty)
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Center(

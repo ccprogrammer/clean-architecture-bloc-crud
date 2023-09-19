@@ -16,7 +16,7 @@ part 'todo_event.dart';
 part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
-  TodoBloc() : super(TodoState()) {
+  TodoBloc({required this.getUseCase}) : super(TodoState()) {
     on<TodoEventGet>(_todoEventGet);
 
     on<TodoEventAdd>(_todoEventAdd);
@@ -30,7 +30,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     on<TodoEventFilter>(_todoEventFilter);
   }
 
-  final getUseCase = TodoGetUseCase();
+  final TodoGetUseCase getUseCase;
   final addUseCase = TodoAddUseCase();
   final updateUseCase = TodoUpdateUseCase();
   final deleteUseCase = TodoDeleteUseCase();

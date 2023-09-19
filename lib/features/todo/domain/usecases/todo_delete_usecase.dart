@@ -3,11 +3,9 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/errors/failures.dart';
-import '../../data/repository/todo_repo_impl.dart';
 import '../entities/todo_entity.dart';
 
 class TodoDeleteUseCase extends UseCase<List<TodoEntity>, TodoParamsDelete> {
-  final todoRepo = TodoRepositoryImpl();
 
   @override
   Future<Either<Failure, List<TodoEntity>>> call(
