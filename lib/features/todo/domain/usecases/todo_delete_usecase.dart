@@ -4,9 +4,12 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../entities/todo_entity.dart';
+import '../repository/todo_repo.dart';
 
 class TodoDeleteUseCase extends UseCase<List<TodoEntity>, TodoParamsDelete> {
+  TodoDeleteUseCase({required this.repository});
 
+  final TodoRepository repository;
   @override
   Future<Either<Failure, List<TodoEntity>>> call(
       TodoParamsDelete params) async {

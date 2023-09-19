@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../enums/data_states.dart';
+import '../../../../core/enums/data_states.dart';
 import '../../domain/entities/todo_entity.dart';
 import '../../domain/entities/todos_view_filter.dart';
 import '../../domain/usecases/todo_add_usecase.dart';
@@ -16,7 +16,19 @@ part 'todo_event.dart';
 part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
-  TodoBloc({required this.getUseCase}) : super(TodoState()) {
+  final TodoGetUseCase getUseCase;
+  final TodoAddUseCase addUseCase;
+  final TodoUpdateUseCase updateUseCase;
+  final TodoDeleteUseCase deleteUseCase;
+  final TodoCompleteUseCase completeUseCase;
+
+  TodoBloc({
+    required this.addUseCase,
+    required this.updateUseCase,
+    required this.deleteUseCase,
+    required this.completeUseCase,
+    required this.getUseCase,
+  }) : super(TodoState()) {
     on<TodoEventGet>(_todoEventGet);
 
     on<TodoEventAdd>(_todoEventAdd);
@@ -29,13 +41,6 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
     on<TodoEventFilter>(_todoEventFilter);
   }
-
-  final TodoGetUseCase getUseCase;
-  
-  final addUseCase = TodoAddUseCase();
-  final updateUseCase = TodoUpdateUseCase();
-  final deleteUseCase = TodoDeleteUseCase();
-  final completeUseCase = TodoCompleteUseCase();
 
   void _todoEventGet(TodoEventGet event, Emitter emit) async {
     emit(state.copyWith(status: DataStates.loading));

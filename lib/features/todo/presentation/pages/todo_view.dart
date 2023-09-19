@@ -3,10 +3,23 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../enums/data_states.dart';
-import '../../presentation/bloc/todo_bloc.dart';
+import '../../../../core/enums/data_states.dart';
+import '../../../../core/injection/injection.dart';
+import '../bloc/todo_bloc.dart';
 import '../../domain/entities/todo_entity.dart';
 import '../../domain/entities/todos_view_filter.dart';
+
+class TodoBlocProviderWrapper extends StatelessWidget {
+  const TodoBlocProviderWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => sl<TodoBloc>(),
+      child: TodoView(),
+    );
+  }
+}
 
 class TodoView extends StatefulWidget {
   const TodoView({super.key});
@@ -38,6 +51,7 @@ class _TodoViewState extends State<TodoView> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        // if todo is deleted show snackbar
         BlocListener<TodoBloc, TodoState>(
           listenWhen: (previous, current) =>
               previous.todos.length < current.todos.length,
@@ -52,6 +66,8 @@ class _TodoViewState extends State<TodoView> {
               );
           },
         ),
+
+        // if todo is added show snackbar
         BlocListener<TodoBloc, TodoState>(
           listenWhen: (previous, current) =>
               previous.todos.length > current.todos.length,
@@ -66,6 +82,8 @@ class _TodoViewState extends State<TodoView> {
               );
           },
         ),
+
+        // if todo is failed show snackbar
         BlocListener<TodoBloc, TodoState>(
           listener: (context, state) {
             if (state.status == DataStates.failure) {
@@ -80,6 +98,8 @@ class _TodoViewState extends State<TodoView> {
             }
           },
         ),
+
+        // if the filter display changes show the snackbar
         BlocListener<TodoBloc, TodoState>(
           listenWhen: (previous, current) => previous.filter != current.filter,
           listener: (context, state) {
@@ -96,7 +116,11 @@ class _TodoViewState extends State<TodoView> {
       ],
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(Icons.chevron_left)),
           title: const Text('Todo BLoC'),
+          centerTitle: true,
           actions: [
             IconButton(
               onPressed: () =>

@@ -7,13 +7,13 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/todo_entity.dart';
 
 class TodoGetUseCase extends UseCase<List<TodoEntity>, TodoParamsGet> {
-  TodoGetUseCase({required this.todoRepo});
+  TodoGetUseCase({required this.repository});
 
-  final TodoRepository todoRepo;
+  final TodoRepository repository;
 
   @override
   Future<Either<Failure, List<TodoEntity>>> call(TodoParamsGet params) async {
-    return await todoRepo.getTodoFromDataSource(params.limit);
+    return await repository.getTodoFromDataSource(params.limit);
   }
 }
 
