@@ -31,6 +31,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   final TodoGetUseCase getUseCase;
+  
   final addUseCase = TodoAddUseCase();
   final updateUseCase = TodoUpdateUseCase();
   final deleteUseCase = TodoDeleteUseCase();
