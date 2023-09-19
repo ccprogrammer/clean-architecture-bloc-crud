@@ -1,21 +1,31 @@
+import 'package:crud_bloc/core/usecases/usecase.dart';
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 
-import '../../../../core/shared/failures.dart';
+import '../../../../core/errors/failures.dart';
 import '../../data/repository/todo_repo_impl.dart';
 import '../entities/todo_entity.dart';
 
-class TodoDeleteUseCase {
+class TodoDeleteUseCase extends UseCase<List<TodoEntity>, TodoParamsDelete> {
   final todoRepo = TodoRepositoryImpl();
 
-  Future<Either<Failure, List<TodoEntity>>> deleteTodo(
-    List<TodoEntity> todos,
-    TodoEntity todo,
-  ) async {
-    final _todos = [...todos];
+  @override
+  Future<Either<Failure, List<TodoEntity>>> call(
+      TodoParamsDelete params) async {
+    final _todos = [...params.todos];
 
     _todos.removeWhere((TodoEntity todo) => todo.id == todo.id);
 
     return right(_todos);
   }
-  
+}
+
+class TodoParamsDelete extends Equatable {
+  final List<TodoEntity> todos;
+  final TodoEntity todo;
+
+  TodoParamsDelete({required this.todos, required this.todo});
+
+  @override
+  List<Object?> get props => [todos, todo];
 }

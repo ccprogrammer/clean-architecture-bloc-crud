@@ -1,18 +1,30 @@
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 
-import '../../../../core/shared/failures.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../data/repository/todo_repo_impl.dart';
 import '../entities/todo_entity.dart';
 
-class TodoAddUseCase {
+class TodoAddUseCase extends UseCase<List<TodoEntity>, TodoParamsAdd> {
   final todoRepo = TodoRepositoryImpl();
 
-  Future<Either<Failure, List<TodoEntity>>> addTodo(
-    List<TodoEntity> todos,
-    TodoEntity todo,
-  ) async {
-    final _todos = [...todos, todo];
+  @override
+  Future<Either<Failure, List<TodoEntity>>> call(TodoParamsAdd params) async {
+    final _todos = [...params.todos, params.todo];
     await Future.delayed(Duration(milliseconds: 500));
     return right(_todos);
   }
+}
+
+class TodoParamsAdd extends Equatable {
+  final List<TodoEntity> todos;
+  final TodoEntity todo;
+  TodoParamsAdd({
+    required this.todos,
+    required this.todo,
+  });
+
+  @override
+  List<Object?> get props => [todos, todo];
 }

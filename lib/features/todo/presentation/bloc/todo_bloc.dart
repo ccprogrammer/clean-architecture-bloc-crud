@@ -1,4 +1,4 @@
-import 'package:crud_bloc/core/shared/failures.dart';
+import 'package:crud_bloc/core/errors/failures.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +39,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   void _todoEventGet(TodoEventGet event, Emitter emit) async {
     emit(state.copyWith(status: DataStates.loading));
 
-    final _todos = await getUseCase.call(GetTodoParams(limit: event.limit));
+    final _todos = await getUseCase.call(TodoParamsGet(limit: event.limit));
 
     _todos.fold(
       (failure) {
@@ -65,7 +65,8 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
       state.copyWith(status: DataStates.loading),
     );
 
-    final _todos = await addUseCase.addTodo(state.todos, event.todo);
+    final _todos = await addUseCase
+        .call(TodoParamsAdd(todos: state.todos, todo: event.todo));
 
     _todos.fold(
       (failure) {
@@ -87,12 +88,11 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventUpdate(TodoEventUpdate event, Emitter emit) async {
-    final _todos = await updateUseCase.updateTodo(
-      state.todos,
-      event.index,
-      event.title,
-      event.subtitle,
-    );
+    final _todos = await updateUseCase.call(TodoParamsUpdate(
+        todos: state.todos,
+        index: event.index,
+        title: event.title,
+        subtitle: event.subtitle));
 
     _todos.fold(
       (failure) {
@@ -114,7 +114,8 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventDelete(TodoEventDelete event, Emitter emit) async {
-    final _todos = await deleteUseCase.deleteTodo(state.todos, event.todo);
+    final _todos = await deleteUseCase
+        .call(TodoParamsDelete(todos: state.todos, todo: event.todo));
 
     _todos.fold(
       (failure) {
@@ -136,8 +137,10 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   void _todoEventIsCompleted(TodoEventIsCompleted event, Emitter emit) async {
-    final _todos = await completeUseCase.completeTodo(
-        state.todos, event.index, event.isCompleted);
+    final _todos = await completeUseCase.call(TodoParamsComplete(
+        index: event.index,
+        isCompleted: event.isCompleted,
+        todos: state.todos));
 
     _todos.fold(
       (failure) {
@@ -169,9 +172,9 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
-      case FailureServer:
+      case ServerFailure:
         return 'Something went wrong in the server, please try again';
-      case FailureCache:
+      case CacheFailure:
         return 'Something went wrong in the storage, please try again';
       default:
         return 'Something went wrong, please try again';
