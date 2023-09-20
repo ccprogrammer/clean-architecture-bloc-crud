@@ -6,6 +6,8 @@ class ExternalInjection {
   ExternalInjection._();
 
   static Future<void> init() async {
+
+    // Http client for api interaction
     sl.registerFactory(() => http.Client());
   }
 }
